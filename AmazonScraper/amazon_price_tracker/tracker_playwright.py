@@ -1,13 +1,23 @@
 import json
 import asyncio
+import os
 from playwright.async_api import async_playwright
 from emailer import send_email
+from config import PRODUCT_URL, TARGET_PRICE
 
 PROFILE_DIR = "playwright_profile"
 
 def load_products(path="products.json"):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        # Fallback to .env config
+        return [{
+            "name": "Amazon Product",
+            "url": PRODUCT_URL,
+            "target_price": TARGET_PRICE
+        }]
 
 async def get_price_amazon(url):
     async with async_playwright() as p:
@@ -61,6 +71,7 @@ async def get_price_amazon(url):
 
         await browser.close()
         return price
+
 async def check_prices():
     products = load_products()
 

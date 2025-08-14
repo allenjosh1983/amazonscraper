@@ -1,13 +1,11 @@
-# config.py
+import os
+from dotenv import load_dotenv
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/115.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9"
-}
+load_dotenv()
 
-EMAIL_ADDRESS = "allenjosh1983one more question @gmail.com"
-EMAIL_PASSWORD = "iqznhvgqvisansnm"  # Use an app password, not your main Gmail password
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
+
+PRODUCT_URL = os.getenv("PRODUCT_URL")
+TARGET_PRICE = float(os.getenv("TARGET_PRICE", "0"))
