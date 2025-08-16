@@ -1,4 +1,0 @@
-flask==2.3.2
-playwright==1.44.0
-schedule==1.2.0         # For daily task automation
-python-dotenv==1.0.0    # For managing config via .env files

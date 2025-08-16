@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Amazon Price Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        const products = {{ products | tojson }};
+
+        function autofillFields() {
+            const index = document.getElementById("product").value;
+            if (index !== "") {
+                const product = products[index];
+                document.getElementById("name").value = product.name;
+                document.getElementById("url").value = product.url;
+                document.getElementById("target_price").value = product.target_price;
+
+                document.getElementById("delete-btn").style.display = "inline";
+                document.getElementById("edit-btn").style.display = "inline";
+
+                document.getElementById("delete-index").value = index;
+                document.getElementById("edit-index").value = index;
+
+                document.getElementById("delete-form").action = `/delete/${index}`;
+                document.getElementById("edit-form").action = `/edit/${index}`;
+            } else {
+                document.getElementById("name").value = "";
+                document.getElementById("url").value = "";
+                document.getElementById("target_price").value = "";
+
+                document.getElementById("delete-btn").style.display = "none";
+                document.getElementById("edit-btn").style.display = "none";
+            }
+        }
+
+        function confirmDelete() {
+            const index = document.getElementById("product").value;
+            if (index === "") return false;
+            const name = products[index].name;
+            return confirm(`Are you sure you want to delete "${name}"?`);
+        }
+    </script>
+</head>
+<body>
+    <h1>Amazon Price Tracker</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <label for="product">Select Existing Product:</label>
+        <select name="product" id="product" onchange="autofillFields()">
+            <option value="">--Choose--</option>
+            {% for product in products %}
+                <option value="{{ loop.index0 }}">{{ product.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="name">Product Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="url">Product URL:</label>
+        <input type="text" id="url" name="url" size="60"><br><br>
+
+        <label for="target_price">Target Price:</label>
+        <input type="text" id="target_price" name="target_price"><br><br>
+
+        <button type="submit">Check Price</button>
+    </form>
+
+    <form method="POST" id="delete-form" style="display:inline;">
+        <input type="hidden" name="index" id="delete-index">
+        <button type="submit" id="delete-btn" style="display:none;" onclick="return confirmDelete()">🗑️ Delete Product</button>
+    </form>
+
+    <form method="POST" id="edit-form" style="display:inline;">
+        <input type="hidden" name="index" id="edit-index">
+        <button type="submit" id="edit-btn" style="display:none;">✏️ Update Product</button>
+    </form>
+</body>
+</html>
