@@ -1,14 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
 import asyncio
-import json
 import os
+import json
+import smtplib
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
 from tracker_playwright import get_price_amazon
 from emailer import send_email
 from config import load_products, save_products
+
+load_dotenv()
+print("EMAIL_ADDRESS loaded:", os.getenv("EMAIL_ADDRESS"))
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Needed for Flask-WTF forms and flash messages
@@ -38,8 +41,16 @@ def index():
                 flash("Could not fetch price.", "error")
             else:
                 msg = f"Current price: ${current_price:.2f}"
+
+                # Debug print to trace product name
+                print(f"[DEBUG] selected_name: {selected_name} ({type(selected_name)})")
+
+                # Fallback name if missing
+                product_name = selected_name or "Unnamed Product"
+
                 if current_price <= target:
-                    send_email(selected_name, url, current_price)
+                    recipient = os.getenv("EMAIL_ADDRESS")
+                    send_email(recipient, product_name, url, current_price)
                     msg += " ✅ Alert sent!"
                 flash(msg, "info")
 
@@ -87,16 +98,35 @@ def edit_product(index):
         flash("Target price must be a number", "error")
 
     return redirect("/")
+
+@app.route("/send-test-email")
+def send_test_email():
+    sender = os.getenv('EMAIL_ADDRESS')
+    password = os.getenv('EMAIL_PASSWORD')
+    smtp_server = os.getenv('SMTP_SERVER')
+    smtp_port = int(os.getenv('SMTP_PORT'))
+
+    recipient = sender
+    subject = "✅ Test Email from Flask"
+    body = "This is a test email sent from your Flask app using Gmail SMTP."
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = recipient
+
+    try:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender, password)
+            server.send_message(msg)
+        return jsonify({"status": "success", "message": "Test email sent!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route("/health")
 def health_check():
     try:
-        from flask_wtf import FlaskForm
-        from wtforms import StringField
-        from dotenv import load_dotenv
-        import os
-        import json
-
-        load_dotenv()
         email = os.getenv("EMAIL_ADDRESS")
         assert email, "EMAIL_ADDRESS not set"
 
