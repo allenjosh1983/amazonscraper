@@ -105,8 +105,5 @@ http://localhost:5000
 - If the current price is below your target, you’ll receive an email alert
 - Use the dropdown to edit or delete existing products
 
-🧪 Testing
-- Visit /send-test-email to confirm email setup
-- Visit /health to verify .env and products.json integrity
 
 
