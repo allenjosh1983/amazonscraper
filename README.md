@@ -1,5 +1,8 @@
 🛒 Amazon Price Tracker
 Track Amazon product prices and receive email alerts when they drop below your target. Built with Flask, Playwright, and a dynamic dashboard for real-time management.
+
+![Product Tracker](docs/product-tracker.png)
+
 🚀 Features
 - ✅ Price Monitoring via Playwright (headless browser scraping)
 - 📬 Email Alerts using Gmail SMTP and .env credentials
